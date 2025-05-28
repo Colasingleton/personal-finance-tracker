@@ -1,4 +1,4 @@
-package entity;
+package com.financetracker.expense_tracker.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
