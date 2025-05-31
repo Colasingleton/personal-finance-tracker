@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Budget - Expense Tracker</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/dashboard}">
+                <i class="fas fa-chart-line me-2"></i>Expense Tracker
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" th:href="@{/expenses}">Expenses</a>
+                <a class="nav-link" th:href="@{/budgets}">Budgets</a>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button class="btn btn-link nav-link text-light border-0" type="submit">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-plus me-2"></i>Add New Budget</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+                        <form th:action="@{/budgets/add}" method="post">
+                            <div class="mb-3">
+                                <label for="monthlyAmount" class="form-label">Monthly Budget Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="monthlyAmount" name="monthlyAmount"
+                                           step="0.01" min="0.01" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category.id" required>
+                                    <option value="">Select a category</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.id}"
+                                            th:text="${category.name}"></option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="budgetMonth" class="form-label">Month</label>
+                                        <select class="form-select" id="budgetMonth" name="budgetMonth" required>
+                                            <option th:value="1" th:text="January" th:selected="${defaultMonth ==1}"></option>
+                                            <option th:value="2" th:text="February" th:selected="${defaultMonth ==2}"></option>
+                                            <option th:value="3" th:text="March" th:selected="${defaultMonth ==3}"></option>
+                                            <option th:value="4" th:text="April" th:selected="${defaultMonth ==4}"></option>
+                                            <option th:value="5" th:text="May" th:selected="${defaultMonth ==5}"></option>
+                                            <option th:value="6" th:text="June" th:selected="${defaultMonth ==6}"></option>
+                                            <option th:value="7" th:text="July" th:selected="${defaultMonth ==7}"></option>
+                                            <option th:value="8" th:text="August" th:selected="${defaultMonth ==8}"></option>
+                                            <option th:value="9" th:text="September" th:selected="${defaultMonth ==9}"></option>
+                                            <option th:value="10" th:text="October" th:selected="${defaultMonth ==10}"></option>
+                                            <option th:value="11" th:text="November" th:selected="${defaultMonth ==11}"></option>
+                                            <option th:value="12" th:text="December" th:selected="${defaultMonth ==12}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="budgetYear" class="form-label">Year</label>
+                                        <input type="number" class="form-control" id="budgetYear" name="budgetYear"
+                                               th:value="${defaultYear}" min="2020" max="2030" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/budgets}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>Save Expense
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

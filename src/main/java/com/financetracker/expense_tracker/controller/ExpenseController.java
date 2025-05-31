@@ -53,11 +53,6 @@ public class ExpenseController {
                              @RequestParam(value = "description", required = false) String description,
                              Model model) {
 
-        System.out.println("DEBUG: Starting addExpense method");
-        System.out.println("DEBUG: Amount: " + amount);
-        System.out.println("DEBUG: Category ID: " + categoryId);
-        System.out.println("DEBUG: Date: " + expenseDate);
-        System.out.println("DEBUG: Description: " + description);
 
         Expense expense = new Expense();
         expense.setAmount(amount);
@@ -65,24 +60,19 @@ public class ExpenseController {
         expense.setDescription(description);
 
         Category category = categoryService.getCategoryById(categoryId).orElse(null);
-        System.out.println("DEBUG: Found category: " + (category != null ? category.getName() : "NULL"));
         expense.setCategory(category);
 
         User user = userRepository.findById(1L).orElse(null);
-        System.out.println("DEBUG: Found user: " + (user != null ? user.getUsername() : "NULL"));
         expense.setUser(user);
 
-        System.out.println("DEBUG: About to save expense");
+
         try {
             Expense savedExpense = expenseService.saveExpense(expense);
-            System.out.println("DEBUG: Saved expense with ID: " + savedExpense.getId());
         } catch (Exception e) {
-            System.out.println("DEBUG: Error saving expense: " + e.getMessage());
             e.printStackTrace();
             return "expenses/add";
         }
 
-        System.out.println("DEBUG: Redirecting to /expenses");
         return "redirect:/expenses";
     }
 /*
@@ -137,7 +127,7 @@ public class ExpenseController {
 
         expense.setId(id);
         Expense existingExpense = expenseService.getExpenseById(id).orElse(null);
-        if(existingExpense == null) {
+        if(existingExpense != null) {
             expense.setUser(existingExpense.getUser());
         }
 
