@@ -1,10 +1,7 @@
 package com.financetracker.expense_tracker.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.math.BigDecimal;
@@ -30,7 +27,7 @@ public class Expense {
     private Category category;
 
     @NotNull(message = "Amount is required")
-    @DecimalMax(value = "0.01", message = "Amount must be greater than 0")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
