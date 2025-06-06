@@ -1,13 +1,16 @@
 package com.financetracker.expense_tracker.controller;
 
 
+import com.financetracker.expense_tracker.dto.MonthlySpending;
 import com.financetracker.expense_tracker.entity.Budget;
 import com.financetracker.expense_tracker.entity.Category;
+import com.financetracker.expense_tracker.entity.Expense;
 import com.financetracker.expense_tracker.entity.User;
 import com.financetracker.expense_tracker.repository.BudgetRepository;
 import com.financetracker.expense_tracker.repository.UserRepository;
 import com.financetracker.expense_tracker.service.BudgetService;
 import com.financetracker.expense_tracker.service.CategoryService;
+import com.financetracker.expense_tracker.service.ExpenseAnalyticsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +37,19 @@ public class BudgetController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    ExpenseAnalyticsService analyticsService;
+
+    @GetMapping("/analytics-test")
+    public String testAnalytics(Model model) {
+        ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(1L);
+        model.addAttribute("summary", summary);
+        model.addAttribute("categoryBreakdown", summary.getCategoryBreakdown());
+        model.addAttribute("budgetComparisons", summary.getBudgetComparisons());
+        return "analytics-test";
+    }
+
 
     @GetMapping
     public String listBudgets(Model model) {
@@ -65,7 +81,7 @@ public class BudgetController {
                             @RequestParam("budgetYear") Integer budgetYear,
                             Model model) {
         User currentUser = userRepository.findById(1L).orElse(null);
-        if(currentUser == null) {
+        if (currentUser == null) {
             return "redirect:/login";
         }
 
@@ -87,8 +103,8 @@ public class BudgetController {
         budget.setBudgetYear(budgetYear);
 
         Category category = categoryService.getCategoryById(categoryId).orElse(null);
-        if(category == null) {
-            model.addAttribute("error","Invalid category selected.");
+        if (category == null) {
+            model.addAttribute("error", "Invalid category selected.");
             model.addAttribute("budget", budget);
             model.addAttribute("categories", categoryService.getAllCategories());
             return "budgets/add";
@@ -99,7 +115,7 @@ public class BudgetController {
         try {
             budgetService.saveBudget(budget);
         } catch (Exception e) {
-            model.addAttribute("error","Error saving budget." + e.getMessage());
+            model.addAttribute("error", "Error saving budget." + e.getMessage());
             model.addAttribute("budget", budget);
             model.addAttribute("categories", categoryService.getAllCategories());
             return "budgets/add";
@@ -110,7 +126,7 @@ public class BudgetController {
     @GetMapping("/edit/{id}")
     public String showEditBudgetForm(@PathVariable Long id, Model model) {
         Budget budget = budgetService.getBudgetById(id).orElse(null);
-        if(budget == null) {
+        if (budget == null) {
             return "redirect:/budgets";
         }
 
@@ -123,12 +139,12 @@ public class BudgetController {
     public String editBudget(@PathVariable Long id,
                              @Valid @ModelAttribute Budget budget,
                              BindingResult result, Model model) {
-        if(result.hasErrors()) {
+        if (result.hasErrors()) {
             model.addAttribute("categories", categoryService.getAllCategories());
             return "budgets/edit";
         }
         Budget existingBudget = budgetService.getBudgetById(id).orElse(null);
-        if(existingBudget == null) {
+        if (existingBudget == null) {
             return "redirect:/budgets";
         }
 
@@ -142,9 +158,11 @@ public class BudgetController {
     @GetMapping("/delete/{id}")
     public String deleteBudget(@PathVariable Long id) {
         Budget budget = budgetService.getBudgetById(id).orElse(null);
-        if(budget != null) {
+        if (budget != null) {
             budgetService.deleteBudget(id);
         }
         return "redirect:/budgets";
     }
+
+
 }
