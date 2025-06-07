@@ -2,15 +2,14 @@ package com.financetracker.expense_tracker.controller;
 
 
 import com.financetracker.expense_tracker.dto.MonthlySpending;
-import com.financetracker.expense_tracker.entity.Budget;
-import com.financetracker.expense_tracker.entity.Category;
-import com.financetracker.expense_tracker.entity.Expense;
-import com.financetracker.expense_tracker.entity.User;
+import com.financetracker.expense_tracker.entity.*;
 import com.financetracker.expense_tracker.repository.BudgetRepository;
+import com.financetracker.expense_tracker.repository.ForecastRepository;
 import com.financetracker.expense_tracker.repository.UserRepository;
 import com.financetracker.expense_tracker.service.BudgetService;
 import com.financetracker.expense_tracker.service.CategoryService;
 import com.financetracker.expense_tracker.service.ExpenseAnalyticsService;
+import com.financetracker.expense_tracker.service.ForecastingService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +22,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+
 
 @Controller
 @RequestMapping("/budgets")
@@ -41,6 +42,9 @@ public class BudgetController {
     @Autowired
     ExpenseAnalyticsService analyticsService;
 
+    @Autowired
+    public ForecastingService forecastingService;
+
     @GetMapping("/analytics-test")
     public String testAnalytics(Model model) {
         ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(1L);
@@ -49,6 +53,30 @@ public class BudgetController {
         model.addAttribute("budgetComparisons", summary.getBudgetComparisons());
         return "analytics-test";
     }
+
+    @GetMapping("/test-forecasting")
+    public String testForecasting(Model model) {
+        try {
+            System.out.println("=== Testing forecasting service ===");
+
+            List<Forecast> forecasts = forecastingService.generateForecastsForAllCategories(1L);
+            System.out.println("Generated " + forecasts.size() + " forecasts");
+
+            ForecastingService.ForecastAccuracyReport report = forecastingService.getForecastAccuracyReport(1L);
+            System.out.println("Accuracy report: " + report.getTotalForecasts() + " total forecasts");
+
+            model.addAttribute("forecasts", forecasts);
+            model.addAttribute("report", report);
+            model.addAttribute("message", "Forecasting test completed - check console");
+            return "analytics-test";
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("error", "Error: " + e.getMessage());
+            return "analytics-test";
+        }
+    }
+
 
 
     @GetMapping
