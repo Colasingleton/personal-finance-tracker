@@ -27,57 +27,249 @@
 </nav>
 
 <div class="container mt-4">
-    <div class="row">
+    <div th:if="${analyticsError}" class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${analyticsError}"></span>
+    </div>
+
+    <!-- current month-->
+    <div class="row mb-4" th:if="${summary}">
         <div class="col-12">
-            <div class="card">
-                <div class="card-body text-center py-5"></div>
-                <i class="fas fa-chart-pie fa-3x text-primary mb-3"></i>
-                <h2>Welcome to Your Expense Tracker</h2>
-                <p class="text-muted">Your dashboard is ready! Track expenses and manage budgets.</p>
-                <div class="mt-4">
-                    <div class="row justify-content-center">
-                        <div class="col-md-8">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <div class="card h-100 border-primary">
-                                        <div class="card-body text-center">
-                                            <i class="fas fa-receipt fa-2x text-primary mb-3"></i>
-                                            <h5>Expenses</h5>
-                                            <p class="text-muted">Track your daily expenses</p>
-                                            <a th:href="@{/expenses}" class="btn btn-primary me-2">
-                                                <i class="fas fa-list me-1"></i>View Expenses
-                                            </a>
-                                            <a th:href="@{/expenses/add}" class="btn btn-outline-primary">
-                                                <i class="fas fa-plus me-1"></i>Add Expense
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="card h-100 border-success">
-                                        <div class="card-body text-center">
-                                            <i class="fas fa-wallet fa-2x text-success mb-3"></i>
-                                            <h5>Budgets</h5>
-                                            <p class="text-muted">Manage your monthly budgets</p>
-                                            <a th:href="@{/budgets}" class="btn btn-success me-2">
-                                                <i class="fas fa-list me-1"></i>View Budgets
-                                            </a>
-                                            <a th:href="@{/budgets/add}" class="btn btn-success">
-                                                <i class="fas fa-plus me-1"></i>Add Budget
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        <span th:text="${currentMonth} + ' ' + ${currentYear} + ' Overview'"></span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!--total spending -->
+                        <div class="col-md-3 mb-3">
+                            <div class="text-center">
+                                <h3 class="text-primary mb-1">
+                                    $<span th:text="${#numbers.formatDecimal(summary.totalSpending, 1, 2)}"></span>
+                                </h3>
+                                <p class="text-muted mb-0">Total Spent</p>
                             </div>
-                            <div class="mt-4">
-                                <button class="btn btn-outline-secondary" disabled>
-                                    <i class="fas fa-chart-bar me-1"></i>Analytics coming soon
-                                </button>
+                        </div>
+
+                        <!--total budget -->
+                        <div class="col-md-3 mb-3">
+                            <div class="text-center">
+                                <h3 class="text-success mb-1">
+                                    $<span th:text="${#numbers.formatDecimal(summary.totalBudget, 1, 2)}"></span>
+                                </h3>
+                                <p class="text-muted mb-0">Total Budget</p>
+                            </div>
+                        </div>
+
+                        <!-- Remaining budget-->
+                        <div class="col-md-3 mb-3">
+                            <div class="text-center">
+                                <h3 th:class="'mb-1 ' + (${summary.remainingBudget.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'text-success' : 'text-danger')">
+                                    $<span th:text="${#numbers.formatDecimal(summary.remainingBudget,1,2)}"></span>
+                                </h3>
+                                <p class="text-muted mb-0">Remaining</p>
+                            </div>
+                        </div>
+
+                        <!--budget used -->
+                        <div class="col-md-3 mb-3">
+                            <div class="text-center">
+                                <h3 th:class="'mb-1 text-' + ${budgetStatusColor}">
+                                    <span th:text="${#numbers.formatDecimal(budgetPercentageUsed,1,1)}"></span>%
+                                </h3>
+                                <p class="text-muted mb-0">Budget Used</p>
+                                <div class="progress mt-2" style="height: 8px;">
+                                    <div class="progress-bar"
+                                         th:classappend="'bg-' + ${budgetStatusColor}"
+                                         role="progressbar"
+                                         th:style="|width: ${budgetPercentageUsed}%;|"
+                                         th:aria-valuenow="${budgetPercentageUsed}"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100">
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!--quick actions -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/expenses/add}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Add New Expense
+                        </a>
+                        <a th:href="@{/budgets/add}" class="btn btn-success">
+                            <i class="fas fa-wallet me-2"></i>Set Budget
+                        </a>
+                        <a th:href="@{/expenses}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i>View All Expenses
+                        </a>
+                        <a th:href="@{/budgets}" class="btn btn-outline-success">
+                            <i class="fas fa-chart-bar me-2"></i>Manage Budgets
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4" th:if="${summary}">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-pie me-2"></i>Spending By Category</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${summary.categoryBreakdown.isEmpty()}" class="text-center text-muted py-3">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <p>No spending this month</p>
+                        <a th:href="@{/expenses/add}" class="btn btn-sm btn-primary">Add First Expense</a>
+                    </div>
+
+                    <div th:if="${!summary.categoryBreakdown.isEmpty()}">
+                        <div th:each="category : ${summary.categoryBreakdown}" class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge" th:style="'background-color: ' + ${category.categoryColor}">
+                                    <i th:class="'fas ' + ${category.categoryIcon} + ' me-1'"></i>
+                                    <span th:text="${category.categoryName}"></span>
+                                </span>
+                                <strong>$<span th:text="${#numbers.formatDecimal(category.totalAmount, 1, 2)}"></span></strong>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar"
+                                     th:style="'background-color: ' + ${category.categoryColor} + '; width: ' +
+                                      ${category.totalAmount.multiply(T(java.math.BigDecimal).valueOf(100)).divide(summary.totalSpending, 2 , T(java.math.RoundingMode).HALF_UP)} + '%'">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Next month's forecast-->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-crystal-ball me-2"></i>Next Month Forecast</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${forecast.isEmpty()}" class="text-center text-muted py-3">
+                        <i class="fas fa-chart-line fa-2x mb-2"></i>
+                        <p>Need more spending history</p>
+                        <small>Add expenses from multiple months to see forecasts</small>
+                    </div>
+                    <div th:if="${!forecast.isEmpty()}">
+                        <div th:each="forecasts : ${forecast}" class="mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="badge" th:style="'background-color: ' + ${forecasts.category.colorCode}">
+                                    <i th:class="'fas fa-' + ${forecasts.category.icon} + ' me-1'"></i>
+                                    <span th:text="${forecasts.category.name}"></span>
+                                </span>
+                            </span>
+                                <div class="text-end">
+                                    <strong>$<span th:text="${#numbers.formatDecimal(forecasts.predictedAmount,1 ,2)}"></span></strong>
+                                    <br>
+                                    <small class="text-muted" th:text="${forecasts.confidenceScore} + '% confidence'"></small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Predicted Total:</strong>
+                            <strong>
+                                $<span th:text="${#numbers.formatDecimal(totalPredicted, 1, 2)}"></span>
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- budget vs actual comparison-->
+
+    <div class="row" th:if="${summary != null && !summary.budgetComparisons.isEmpty()}">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-balance-scale me-2"></i>Budget vs Actual Spending</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div th:each="comparison : ${summary.budgetComparisons}" class="col-md-6 col-lg-4 mb-3">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="badge" th:style="'background-color: ' + ${comparison.categoryColor}">
+                                            <i th:class="'fas ' + ${comparison.categoryIcon} + ' me-1'"></i>
+                                            <span th:text="${comparison.categoryName}"></span>
+                                        </span>
+                                        <span th:if="${comparison.overBudget}" class="badge bg-danger">Over Budget</span>
+                                        <span th:if="${comparison.nearBudgetLimit}" class="badge bg-warning">Near Limit</span>
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <small class="text-muted">Budget: $<span th:text="${#numbers.formatDecimal(comparison.budgetAmount, 1, 2)}"></span></small><br>
+                                        <small class="text-muted">Spent: $<span th:text="${#numbers.formatDecimal(comparison.actualAmount, 1, 2)}"></span></small>
+                                    </div>
+
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar"
+                                        th:classappend="${comparison.overBudget} ? 'bg-danger' : (${comparison.nearBudgetLimit} ? 'bg-warning' : 'bg-success')"
+                                        role="progressbar"
+                                        th:style="'width: ' + ${comparison.percentageUsed > 100 ? 100 : comparison.percentageUsed} + '%'"
+                                        th:aria-valuenow="${comparison.percentageUsed}"
+                                        aria-valuemin="0"
+                                        aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted" th:text="${#numbers.formatDecimal(comparison.percentageUsed, 1, 1)} + '% used'"></small>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome new users-->
+    <div class="row" th:if="${summary == null || (summary.totalSpending.compareTo(T(java.math.BigDecimal).ZERO) == 0 && summary.totalBudget.compareTo(T(java.math.BigDecimal).ZERO) == 0)}">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-chart-pie fa-3x text-primary mb-3"></i>
+                    <h2>Welcome to Your Expense Tracker</h2>
+                    <p class="text-muted">Get started by adding your first expense or setting up a budget!</p>
+                    <div class="mt-4">
+                        <a th:href="@{/expenses/add}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>Add First Expense
+                        </a>
+                        <a th:href="@{/budgets/add}" class="btn btn-success">
+                            <i class="fas fa-wallet me-1"></i>Set First Budget
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
         </div>

@@ -4,11 +4,9 @@ import com.financetracker.expense_tracker.dto.MonthlySpending;
 import com.financetracker.expense_tracker.entity.Category;
 import com.financetracker.expense_tracker.entity.Forecast;
 import com.financetracker.expense_tracker.entity.User;
-import com.financetracker.expense_tracker.repository.ExpenseRepository;
 import com.financetracker.expense_tracker.repository.ForecastRepository;
 import com.financetracker.expense_tracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,7 +14,6 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -216,4 +213,5 @@ public class ForecastingService {
         LocalDate cutoffDate = LocalDate.now().minusMonths(monthsToKeep);
         forecastRepository.deleteOldForecasts(cutoffDate.getYear(), cutoffDate.getMonthValue());
     }
+
 }
