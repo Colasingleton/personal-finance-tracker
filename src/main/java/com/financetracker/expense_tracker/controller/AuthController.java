@@ -1,5 +1,6 @@
 package com.financetracker.expense_tracker.controller;
 
+import com.financetracker.expense_tracker.dto.MonthlySpending;
 import com.financetracker.expense_tracker.entity.Forecast;
 import com.financetracker.expense_tracker.service.ExpenseAnalyticsService;
 import com.financetracker.expense_tracker.service.ForecastingService;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -39,6 +41,11 @@ public class AuthController {
             ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(1L);
             List<Forecast> forecasts = forecastingService.generateForecastsForAllCategories(1L);
 
+            //for chart data
+            List<MonthlySpending> spendingTrends = analyticsService.getSpendingTrends(1L, 6);
+            model.addAttribute("spendingTrends", spendingTrends);
+
+
             BigDecimal totalPredicted = forecasts.stream()
                     .map(Forecast::getPredictedAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -61,7 +68,12 @@ public class AuthController {
             model.addAttribute("budgetStatusColor", budgetStatusColor);
 
         } catch (Exception e){
-            model.addAttribute("analyticsError", "Analytics temporarily unavailable");
+            System.err.println("Dashboard error: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("analyticsError", "Dashboard temporarily unavailable. Please try again later.");
+            model.addAttribute("summary", null);
+            model.addAttribute("forecast", new ArrayList<>());
+            model.addAttribute("spendingTrends", new ArrayList<>());
         }
             return "dashboard";
     }
