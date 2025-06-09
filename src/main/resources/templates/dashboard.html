@@ -7,6 +7,23 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(10px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        .error-state {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            color: #6c757d;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -195,8 +212,7 @@
                             </div>
                             <div class="progress" style="height: 6px;">
                                 <div class="progress-bar"
-                                     th:style="'background-color: ' + ${category.categoryColor} + '; width: ' +
-                                      ${category.totalAmount.multiply(T(java.math.BigDecimal).valueOf(100)).divide(summary.totalSpending, 2 , T(java.math.RoundingMode).HALF_UP)} + '%'">
+                                     th:style="'background-color: ' + ${category.categoryColor} + '; width: 50%'">
 
                                 </div>
                             </div>
@@ -326,60 +342,39 @@
 
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('Initializing dashboard charts...');
         const hasData = /*[[${summary != null}]]*/ false;
+        const hasAnalyticsError = /*[[${analyticsError != null}]]*/ false;
 
-        if (!hasData) {
-            console.log('No data available for charts');
-            return;
+
+        function showEmptyState() {
+            const chartContainers = ['monthlyTrendsChart', 'categoryPieChart', 'budgetComparisonChart'];
+            chartContainers.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if(container) {
+                    container.parentElement.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-chart-line fa-2x mb-2"></i>
+                    <p>No data available yet</p>
+                    <small>Add some expense to see charts</small>
+                </div>
+            `;
+                }
+            });
         }
-        const monthlyTrendsCtx = document.getElementById('monthlyTrendsChart');
-        if (monthlyTrendsCtx) {
-            const monthlyTrendsChart = new Chart(monthlyTrendsCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Monthly Spending',
-                        data: [1200, 1500, 1800, 1300, 1600,/*[[${summary.totalSpending}]]*/ 0],
-                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                        borderColor: '#007bff',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': $' + context.parsed.y.toFixed(2);
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$' + value;
-                                }
-                            }
-                        }
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        intersect: false,
-                    }
+
+        function showChartError() {
+            const chartContainers = ['monthlyTrendsChart', 'categoryPieChart', 'budgetComparisonChart'];
+            chartContainers.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if(container) {
+                    container.parentElement.innerHTML = `
+                <div class="error-state">
+                <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                <p>Chart temporarily unavailable</p>
+                <button class="btn btn-sm btn-outline-primary" onclick="location.reload()">Retry</button>
+                </div>
+            `;
                 }
             });
         }
@@ -387,122 +382,219 @@
 
 
 
-    //chart 2
-    const categoryPieCtx = document.getElementById('categoryPieChart');
-    if (categoryPieCtx && /*[[${!summary.categoryBreakdown.isEmpty()}]]*/ false){
+        function initializeCharts() {
+            //chart 1
+            const monthlyTrendsCtx = document.getElementById('monthlyTrendsChart');
+            if (monthlyTrendsCtx) {
+                const hasSpendingTrends = /*[[${spendingTrends != null && !spendingTrends.isEmpty()}]]*/ false;
 
-        const categoryData = [];
-        const categoryLabels = [];
-        const categoryColors = [];
+                let chartLabels, chartData;
 
-        /*[# th:each="category : ${summary.categoryBreakdown}"]*/
-        categoryLabels.push(/*[[${category.categoryName}]]*/);
-        categoryData.push(/*[[${category.totalAmount}]]*/);
-        categoryColors.push(/*[[${category.categoryColor}]]*/);
-        /*[/]*/
+                if (hasSpendingTrends) {
+                    chartLabels = [];
+                    chartData = [];
 
-        const categoryPieChart = new Chart(categoryPieCtx, {
-            type: 'doughnut',
-            data: {
-                labels: categoryLabels,
-                datasets: [{
-                    data: categoryData,
-                    backgroundColor: categoryColors,
-                    borderWidth: 2,
-                    borderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true,
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const total = context.dataset.data.reduce((a,b) => a + b, 0);
-                                const percentage = ((context.parsed / total) * 100).toFixed(1);
-                                return context.label + ': $' + context.parsed.toFixed(2) + ' (' + percentage + '%)';
-                            }
-                        }
-                    }
+                    /*[# th:each="trend : ${spendingTrends}"]*/
+                    chartLabels.unshift(/*[[${#strings.capitalize(T(java.time.Month).of(trend.month).name().substring(0,3))}]]*/ 'Monthly');
+                    chartData.unshift(/*[[${trend.totalAmount}]]*/);
+                    /*[/]*/
+                } else {
+                    chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                    chartData = [1200, 1500, 1800, 1300, 1600,/*[[${summary != null ? summary.totalSpending : 0}]]*/ 0];
                 }
-            }
-        });
-    }
 
-    //chart 3 budget vs actual
-    const budgetComparisonCtx = document.getElementById('budgetComparisonChart');
-    if (budgetComparisonCtx && /*[[${summary != null && !summary.budgetComparisons.isEmpty()}]]*/ false){
-        const budgetLabels = [];
-        const budgetAmounts = [];
-        const actualAmounts = [];
-        const backgroundColors = [];
-
-        /*[# th:each="comparison : ${summary.budgetComparisons}"]*/
-        budgetLabels.push(/*[[${comparison.categoryName}]]*/ );
-        budgetAmounts.push(/*[[${comparison.budgetAmount}]]*/);
-        actualAmounts.push(/*[[${comparison.actualAmount}]]*/);
-        backgroundColors.push(/*[[${comparison.categoryColor}]]*/);
-        /*[/]*/
-
-        const budgetComparisonChart = new Chart(budgetComparisonCtx, {
-            type: 'bar',
-            data: {
-                labels: budgetLabels,
-                datasets: [{
-                    label: 'Budget',
-                    data: budgetAmounts,
-                    backgroundColor: 'rgba(40, 167, 69, 0.8)',
-                    borderColor: 'rgba(40, 167, 69, 1)',
-                    borderWidth: 1
-                }, {
-                    label: 'Actual',
-                    data: actualAmounts,
-                    backgroundColor: backgroundColors.map(color => color + '80'),
-                    borderColor: backgroundColors,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top'
+                const monthlyTrendsChart = new Chart(monthlyTrendsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            label: 'Monthly Spending',
+                            data: chartData,
+                            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                            borderColor: '#007bff',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': $' + context.parsed.y.toFixed(2);
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.dataset.label + ': $' + context.parsed.y.toFixed(2);
+                                    }
+                                }
                             }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 750,
+                            easing: 'easeInOutQuart',
                         }
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value;
-                            }
-                        }
-                    }
-                },
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                }
+                });
             }
-        });
-    }
+
+
+            //chart 2
+            const categoryPieCtx = document.getElementById('categoryPieChart');
+            if (categoryPieCtx && /*[[${!summary.categoryBreakdown.isEmpty()}]]*/ false) {
+
+                const categoryData = [];
+                const categoryLabels = [];
+                const categoryColors = [];
+
+                /*[# th:each="category : ${summary.categoryBreakdown}"]*/
+                categoryLabels.push(/*[[${category.categoryName}]]*/);
+                categoryData.push(/*[[${category.totalAmount}]]*/);
+                categoryColors.push(/*[[${category.categoryColor}]]*/);
+                /*[/]*/
+
+                const categoryPieChart = new Chart(categoryPieCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [{
+                            data: categoryData,
+                            backgroundColor: categoryColors,
+                            borderWidth: 2,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                        return context.label + ': $' + context.parsed.toFixed(2) + ' (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            //chart 3 budget vs actual
+            const budgetComparisonCtx = document.getElementById('budgetComparisonChart');
+            if (budgetComparisonCtx && /*[[${summary != null && !summary.budgetComparisons.isEmpty()}]]*/ false) {
+                const budgetLabels = [];
+                const budgetAmounts = [];
+                const actualAmounts = [];
+                const backgroundColors = [];
+
+                /*[# th:each="comparison : ${summary.budgetComparisons}"]*/
+                budgetLabels.push(/*[[${comparison.categoryName}]]*/);
+                budgetAmounts.push(/*[[${comparison.budgetAmount}]]*/);
+                actualAmounts.push(/*[[${comparison.actualAmount}]]*/);
+                backgroundColors.push(/*[[${comparison.categoryColor}]]*/);
+                /*[/]*/
+
+                const budgetComparisonChart = new Chart(budgetComparisonCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: budgetLabels,
+                        datasets: [{
+                            label: 'Budget',
+                            data: budgetAmounts,
+                            backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                            borderColor: 'rgba(40, 167, 69, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: 'Actual',
+                            data: actualAmounts,
+                            backgroundColor: backgroundColors.map(color => color + '80'),
+                            borderColor: backgroundColors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.dataset.label + ': $' + context.parsed.y.toFixed(2);
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return '$' + value;
+                                    }
+                                }
+                            }
+                        },
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    }
+                });
+            }
+
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.add('fade-in');
+            });
+        }
+
+            if (hasAnalyticsError) {
+                console.warn('Analytics error detected, skipping chart initialization');
+                return;
+            }
+
+            if (!hasData) {
+                console.log('No data available for charts');
+                showEmptyState();
+                return;
+            }
+            try {
+                initializeCharts();
+                console.log('Charts initialized successfully');
+            } catch (error) {
+                console.error('Error initializing charts:', error);
+                showChartError();
+            }
+
 });
+
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

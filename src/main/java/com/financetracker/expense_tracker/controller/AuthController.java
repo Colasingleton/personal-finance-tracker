@@ -37,12 +37,25 @@ public class AuthController {
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
+
+
         try{
             ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(1L);
             List<Forecast> forecasts = forecastingService.generateForecastsForAllCategories(1L);
 
             //for chart data
             List<MonthlySpending> spendingTrends = analyticsService.getSpendingTrends(1L, 6);
+
+            //debugging
+
+
+            System.out.println("=== SPENDING TRENDS DEBUG ===");
+            System.out.println("Spending trends size: " + spendingTrends.size());
+            for (MonthlySpending trend : spendingTrends) {
+                System.out.println("Month: " + trend.getMonth() + ", Year: " + trend.getYear() + ", Amount: " + trend.getTotalAmount());
+            }
+                //debugging
+
             model.addAttribute("spendingTrends", spendingTrends);
 
 
