@@ -32,9 +32,37 @@ public class ExpenseController {
     private CategoryService categoryService;
 
     @GetMapping
-    public String listExpenses(Model model) {
+    public String listExpenses(Model model,
+                               @RequestParam(value = "search", required = false) String searchTerm,
+                               @RequestParam(value = "startDate", required = false) String startDate,
+                               @RequestParam(value = "endDate", required = false) String endDate) {
+        List<Expense> expenses;
+        Long userId = 1L;
 
-        List<Expense> expenses = expenseService.getExpensesByUserId(1L);
+        if(searchTerm != null && !searchTerm.trim().isEmpty()) {
+            expenses = expenseService.searchExpenses(userId, searchTerm);
+            model.addAttribute("searchTerm", searchTerm);
+            model.addAttribute("searchResults", true);
+        } else if (startDate != null && endDate != null &&
+                !startDate.isEmpty() && !endDate.isEmpty()) {
+            try {
+                LocalDate start = LocalDate.parse(startDate);
+                LocalDate end = LocalDate.parse(endDate);
+                expenses = expenseService.getExpensesByDateRange(userId, start, end);
+                model.addAttribute("startDate", startDate);
+                model.addAttribute("endDate", endDate);
+                model.addAttribute("dateRangeResults", true);
+            } catch (Exception e) {
+                expenses = expenseService.getExpensesByUserId(userId);
+                model.addAttribute("dateError", "invalid date format");
+            }
+
+        }
+        else {
+            expenses = expenseService.getExpensesByUserId(userId);
+        }
+
+
         model.addAttribute("expenses", expenses);
         return "expenses/list";
     }

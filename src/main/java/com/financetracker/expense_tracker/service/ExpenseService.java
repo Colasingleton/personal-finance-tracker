@@ -7,6 +7,7 @@ import com.financetracker.expense_tracker.repository.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,5 +39,16 @@ public class ExpenseService {
 
     public void deleteExpense(Long id) {
         expenseRepository.deleteById(id);
+    }
+
+    public List<Expense> searchExpenses(Long userId, String searchTerm) {
+        if(searchTerm == null || searchTerm.trim().isEmpty()) {
+            return getExpensesByUserId(userId);
+        }
+        return expenseRepository.searchExpenses(userId, searchTerm.trim());
+    }
+
+    public List<Expense> getExpensesByDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+        return expenseRepository.findExpensesByDateRange(userId, startDate, endDate);
     }
 }

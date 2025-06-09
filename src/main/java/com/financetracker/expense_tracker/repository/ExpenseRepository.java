@@ -4,6 +4,7 @@ import com.financetracker.expense_tracker.entity.Expense;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -72,5 +73,20 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     "WHERE e.user.id = :userId " +
     "ORDER BY e.expenseDate DESC, e.createdDate DESC")
     List<Expense> findRecentExpensesByUserId(@Param("userId") Long userId);
+
+
+    @Query("select e from Expense e WHERE e.user.id = :userId " +
+            "and (lower(e.description) like lower(concat('%', :searchTerm, '%') ) " +
+            " or lower(e.category.name) like lower(concat('%', :searchTerm, '%'))) " +
+            "order by e.expenseDate DESC")
+    List<Expense> searchExpenses(@Param("userId") Long userId,
+                                 @Param("searchTerm") String searchTerm);
+
+    @Query("select e from Expense e WHERE e.user.id = :userId " +
+            "AND e.expenseDate BETWEEN :startDate AND :endDate " +
+            "order by e.expenseDate desc")
+    List<Expense> findExpensesByDateRange(@Param("userId") Long userId,
+                                          @Param("startDate") LocalDate startDate,
+                                          @Param("endDate") LocalDate endDate);
 
 }
