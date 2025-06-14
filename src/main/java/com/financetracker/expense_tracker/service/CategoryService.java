@@ -34,10 +34,23 @@ public class CategoryService {
             categoryRepository.save(new Category("Food", "#FF6B6B", "fa-utensils"));
             categoryRepository.save(new Category("Transportation", "#4ECDC4","fa-car" ));
             categoryRepository.save(new Category("Entertainment", "#45B7D1", "fa-film"));
-            categoryRepository.save(new Category("Bills", "#F9CA24", "fa-file-invoice-dollar"));
+            categoryRepository.save(new Category("Bills", "#E67E22", "fa-file-invoice-dollar"));
             categoryRepository.save(new Category("Healthcare", "#F0932B", "fa-heartbeat"));
             categoryRepository.save(new Category("Shopping", "#EB4D4B", "fa-shopping-bag"));
             categoryRepository.save(new Category("Other", "#6C5CE7", "fa-question"));
         }
     }
+//debugging
+public void debugCategories() {
+    List<Category> categories = categoryRepository.findAll();
+    System.out.println("=== ALL CATEGORIES DEBUG ===");
+    for(Category cat : categories) {
+        System.out.println("ID: " + cat.getId() + ", Name: '" + cat.getName() + "', Color: '" + cat.getColorCode() + "', Icon: '" + cat.getIcon() + "'");
+    }
+}
+
+
+//debugging
+
+
 }

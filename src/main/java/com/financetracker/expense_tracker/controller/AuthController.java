@@ -2,12 +2,18 @@ package com.financetracker.expense_tracker.controller;
 
 import com.financetracker.expense_tracker.dto.MonthlySpending;
 import com.financetracker.expense_tracker.entity.Forecast;
+import com.financetracker.expense_tracker.entity.User;
+import com.financetracker.expense_tracker.service.CategoryService;
 import com.financetracker.expense_tracker.service.ExpenseAnalyticsService;
 import com.financetracker.expense_tracker.service.ForecastingService;
+import com.financetracker.expense_tracker.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,6 +29,12 @@ public class AuthController {
     @Autowired
     private ForecastingService forecastingService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private CategoryService categoryService;
+
 
     @GetMapping("/login")
         public String login() {
@@ -35,19 +47,39 @@ public class AuthController {
         return "register";
     }
 
+    @PostMapping("/register")
+    public String registerUser(@RequestParam String username,
+                               @RequestParam String password,
+                               @RequestParam String email,
+                               Model model) {
+        try {
+            userService.registerNewUser(username, password, email);
+            return "redirect:/login?registered";
+        } catch (RuntimeException e) {
+            model.addAttribute("error", e.getMessage());
+            return "register";
+        }
+
+    }
+
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(Model model, Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) return "redirect:/login";
+        Long userId = user.getId();
 
 
         try{
-            ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(1L);
-            List<Forecast> forecasts = forecastingService.generateForecastsForAllCategories(1L);
+            ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(userId);
+            List<Forecast> forecasts = forecastingService.generateForecastsForAllCategories(userId);
 
             //for chart data
-            List<MonthlySpending> spendingTrends = analyticsService.getSpendingTrends(1L, 6);
+            List<MonthlySpending> spendingTrends = analyticsService.getSpendingTrends(userId, 6);
 
             //debugging
 
+                categoryService.debugCategories();
+                ExpenseAnalyticsService.DashboardSummary summary2 = analyticsService.getCurrentMonthSummary(userId);
 
             System.out.println("=== SPENDING TRENDS DEBUG ===");
             System.out.println("Spending trends size: " + spendingTrends.size());
@@ -95,5 +127,4 @@ public class AuthController {
     public String home() {
         return "redirect:/dashboard";
     }
-
 }

@@ -6,8 +6,10 @@ import com.financetracker.expense_tracker.entity.User;
 import com.financetracker.expense_tracker.repository.UserRepository;
 import com.financetracker.expense_tracker.service.CategoryService;
 import com.financetracker.expense_tracker.service.ExpenseService;
+import com.financetracker.expense_tracker.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,14 +32,27 @@ public class ExpenseController {
 
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping
     public String listExpenses(Model model,
                                @RequestParam(value = "search", required = false) String searchTerm,
                                @RequestParam(value = "startDate", required = false) String startDate,
-                               @RequestParam(value = "endDate", required = false) String endDate) {
+                               @RequestParam(value = "endDate", required = false) String endDate,
+                               Authentication authentication) {
         List<Expense> expenses;
-        Long userId = 1L;
+
+
+
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) return "redirect:/login";
+        Long userId = user.getId();
+
+        //prevents null errors
+        model.addAttribute("searchResults", false);
+        model.addAttribute("dateRangeResults", false);
+
 
         if(searchTerm != null && !searchTerm.trim().isEmpty()) {
             expenses = expenseService.searchExpenses(userId, searchTerm);
@@ -79,6 +94,7 @@ public class ExpenseController {
                              @RequestParam("category.id") Long categoryId,
                              @RequestParam("expenseDate") LocalDate expenseDate,
                              @RequestParam(value = "description", required = false) String description,
+                             Authentication authentication,
                              Model model) {
 
 
@@ -90,7 +106,7 @@ public class ExpenseController {
         Category category = categoryService.getCategoryById(categoryId).orElse(null);
         expense.setCategory(category);
 
-        User user = userRepository.findById(1L).orElse(null);
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
         expense.setUser(user);
 
 
@@ -133,31 +149,51 @@ public class ExpenseController {
     }
 */
      @GetMapping("/edit/{id}")
-    public String showEditExpenseForm(@PathVariable Long id, Model model) {
-        Expense expense = expenseService.getExpenseById(id).orElse(null);
-        if(expense == null) {
-            return "redirect:/expenses";
-        }
+    public String showEditExpenseForm(@PathVariable Long id, Model model, Authentication authentication) {
 
-        model.addAttribute("expense", expense);
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "expenses/edit";
-     }
+         try{
+             User user = userService.findByUsername(authentication.getName()).orElse(null);
+             if (user == null) return "redirect:/login";
+
+
+             Expense expense = expenseService.getExpenseById(id).orElse(null);
+             if(expense == null) {
+                 System.out.println("expense not found");
+                 return "redirect:/expenses";
+             }
+
+             if(!expense.getUser().getId().equals(user.getId())) {
+                 return "redirect:/expenses";
+             }
+
+             model.addAttribute("expense", expense);
+             model.addAttribute("categories", categoryService.getAllCategories());
+             return "expenses/edit";
+         } catch (Exception e) {
+             e.printStackTrace();
+             return "redirect:/expenses";
+         }
+    }
+
 
      @PostMapping("/edit/{id}")
     public String editExpense(@PathVariable Long id,
-                              @Valid @ModelAttribute Expense expense,
-                              BindingResult result, Model model) {
-        if(result.hasErrors()) {
+                              @ModelAttribute Expense expense,
+                              BindingResult result, Model model, Authentication authentication) {
+
+         expense.setId(id);
+         Expense existingExpense = expenseService.getExpenseById(id).orElse(null);
+         if(existingExpense != null) {
+             expense.setUser(existingExpense.getUser());
+         }
+
+         if(result.hasErrors()) {
+            System.out.println(result.getAllErrors());
             model.addAttribute("categories", categoryService.getAllCategories());
             return "expenses/edit";
         }
 
-        expense.setId(id);
-        Expense existingExpense = expenseService.getExpenseById(id).orElse(null);
-        if(existingExpense != null) {
-            expense.setUser(existingExpense.getUser());
-        }
+
 
         expenseService.saveExpense(expense);
         return "redirect:/expenses";

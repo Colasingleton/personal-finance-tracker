@@ -50,7 +50,7 @@
 
         <!-- date range search-->
         <div class="col-md-6 mb-3">
-          <form th:action="@{/expenses/}" method="get" class="d-flex">
+          <form th:action="@{/expenses}" method="get" class="d-flex">
             <div class="input-group">
               <input type="date"
                      class="form-control"
@@ -90,7 +90,7 @@
               <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
               <h4 th:if="${searchResults}">No expenses found</h4>
               <h4 th:if="${dateRangeResults}">No expenses in this date range</h4>
-              <h4 th:unless="${searchResults or dateRangeResults}">No expenses yet</h4>
+              <h4 th:unless="${searchResults == true or  dateRangeResults == true}">No expenses yet</h4>
               <p th:if="${searchResults}" class="text-muted">
                 Try a different search term or <a th:href="@{/expenses}">view all expenses</a>
               </p>
@@ -98,11 +98,11 @@
                 Try a different date range or <a th:href="@{/expenses}">view all expenses</a>
               </p>
 
-              <p th:unless="${searchResults or dateRangeResults}" class="text-muted">
+              <p th:unless="${searchResults == true or dateRangeResults == true}" class="text-muted">
                 Start tracking your expenses by adding your first one!
               </p>
 
-              <a th:href="@{/expenses/add}" class="btn btn-primary" th:unless="${searchResults or dateRangeResults}">
+              <a th:href="@{/expenses/add}" class="btn btn-primary" th:unless="${searchResults == true or dateRangeResults == true}">
                 <i class="fas fa-plus me-1"></i>Add Your First Expense
               </a>
             </div>

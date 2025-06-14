@@ -6,13 +6,11 @@ import com.financetracker.expense_tracker.entity.*;
 import com.financetracker.expense_tracker.repository.BudgetRepository;
 import com.financetracker.expense_tracker.repository.ForecastRepository;
 import com.financetracker.expense_tracker.repository.UserRepository;
-import com.financetracker.expense_tracker.service.BudgetService;
-import com.financetracker.expense_tracker.service.CategoryService;
-import com.financetracker.expense_tracker.service.ExpenseAnalyticsService;
-import com.financetracker.expense_tracker.service.ForecastingService;
+import com.financetracker.expense_tracker.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -45,9 +43,14 @@ public class BudgetController {
     @Autowired
     public ForecastingService forecastingService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/analytics-test")
-    public String testAnalytics(Model model) {
-        ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(1L);
+    public String testAnalytics(Model model, Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) return "redirect:/login";
+        ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(user.getId());
         model.addAttribute("summary", summary);
         model.addAttribute("categoryBreakdown", summary.getCategoryBreakdown());
         model.addAttribute("budgetComparisons", summary.getBudgetComparisons());
@@ -55,14 +58,17 @@ public class BudgetController {
     }
 
     @GetMapping("/test-forecasting")
-    public String testForecasting(Model model) {
+    public String testForecasting(Model model, Authentication authentication) {
         try {
             System.out.println("=== Testing forecasting service ===");
 
-            List<Forecast> forecasts = forecastingService.generateForecastsForAllCategories(1L);
+            User user = userService.findByUsername(authentication.getName()).orElse(null);
+            if (user == null) return "redirect:/login";
+
+            List<Forecast> forecasts = forecastingService.generateForecastsForAllCategories(user.getId());
             System.out.println("Generated " + forecasts.size() + " forecasts");
 
-            ForecastingService.ForecastAccuracyReport report = forecastingService.getForecastAccuracyReport(1L);
+            ForecastingService.ForecastAccuracyReport report = forecastingService.getForecastAccuracyReport(user.getId());
             System.out.println("Accuracy report: " + report.getTotalForecasts() + " total forecasts");
 
             model.addAttribute("forecasts", forecasts);
@@ -80,8 +86,10 @@ public class BudgetController {
 
 
     @GetMapping
-    public String listBudgets(Model model) {
-        List<Budget> budgets = budgetService.getBudgetsByUserId(1L);
+    public String listBudgets(Model model, Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) return "redirect:/login";
+        List<Budget> budgets = budgetService.getBudgetsByUserId(user.getId());
         model.addAttribute("budgets", budgets);
 
         LocalDate now = LocalDate.now();
@@ -107,8 +115,9 @@ public class BudgetController {
                             @RequestParam("category.id") Long categoryId,
                             @RequestParam("budgetMonth") Integer budgetMonth,
                             @RequestParam("budgetYear") Integer budgetYear,
+                            Authentication authentication,
                             Model model) {
-        User currentUser = userRepository.findById(1L).orElse(null);
+        User currentUser = userService.findByUsername(authentication.getName()).orElse(null);
         if (currentUser == null) {
             return "redirect:/login";
         }
@@ -192,5 +201,12 @@ public class BudgetController {
         return "redirect:/budgets";
     }
 
+    private User getAuthenticatedUser(Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+        return user;
+    }
 
 }
