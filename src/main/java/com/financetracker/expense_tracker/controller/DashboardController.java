@@ -5,6 +5,7 @@ import com.financetracker.expense_tracker.entity.Forecast;
 import com.financetracker.expense_tracker.entity.User;
 import com.financetracker.expense_tracker.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,15 +19,18 @@ import java.util.List;
 @Controller
 public class DashboardController {
     @Autowired
+    @Lazy
     private ExpenseAnalyticsService analyticsService;
 
     @Autowired
     private UserService userService;
 
     @Autowired
+    @Lazy
     private ForecastingService forecastingService;
 
     @Autowired
+    @Lazy
     private CategoryService categoryService;
 
     @GetMapping("/dashboard")
