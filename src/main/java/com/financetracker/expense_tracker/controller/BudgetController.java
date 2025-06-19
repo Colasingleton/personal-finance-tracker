@@ -38,9 +38,6 @@ public class BudgetController {
     private CategoryService categoryService;
 
     @Autowired
-    public ForecastingService forecastingService;
-
-    @Autowired
     private UserService userService;
 /*
     @GetMapping("/analytics-test")
@@ -54,7 +51,7 @@ public class BudgetController {
         return "analytics-test";
     }
 
- */
+
 
     @GetMapping("/test-forecasting")
     public String testForecasting(Model model, Authentication authentication) {
@@ -81,7 +78,7 @@ public class BudgetController {
             return "analytics-test";
         }
     }
-
+*/
 
 
     @GetMapping
