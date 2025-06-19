@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -45,6 +46,17 @@ public class AuthController {
     @GetMapping("/register")
     public String register() {
         return "register";
+    }
+
+    @GetMapping("/_ah/health")
+    @ResponseBody
+    public String health() {
+        return "OK";
+    }
+
+    @GetMapping("/")
+    public String root() {
+        return "redirect:/login";
     }
 
     @PostMapping("/register")
