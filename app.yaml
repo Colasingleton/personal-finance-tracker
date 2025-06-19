@@ -13,8 +13,8 @@ automatic_scaling:
 
 readiness_check:
   timeout_sec: 300
-  checkout_interval_sec: 5
+  check_interval_sec: 5
 
 liveness_check:
   timeout_sec: 300
-  checkout_interval_sec: 30
+  check_interval_sec: 30
