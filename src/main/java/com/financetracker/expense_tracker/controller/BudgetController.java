@@ -38,14 +38,11 @@ public class BudgetController {
     private CategoryService categoryService;
 
     @Autowired
-    ExpenseAnalyticsService analyticsService;
-
-    @Autowired
     public ForecastingService forecastingService;
 
     @Autowired
     private UserService userService;
-
+/*
     @GetMapping("/analytics-test")
     public String testAnalytics(Model model, Authentication authentication) {
         User user = userService.findByUsername(authentication.getName()).orElse(null);
@@ -56,6 +53,8 @@ public class BudgetController {
         model.addAttribute("budgetComparisons", summary.getBudgetComparisons());
         return "analytics-test";
     }
+
+ */
 
     @GetMapping("/test-forecasting")
     public String testForecasting(Model model, Authentication authentication) {
