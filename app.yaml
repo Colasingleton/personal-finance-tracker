@@ -1,0 +1,12 @@
+runtime: java17
+env: standard
+
+env_variables:
+  INSTANCE_CONNECTION_NAME: "boreal-coyote-463122-r3:us-east1:expense-tracker-db"
+  DATABASE_NAME: "expense_tracker"
+  DATABASE_USER: "root"
+  DATABASE_PASSWORD: 'TFIdEd*p".8;7,JH'
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 2
