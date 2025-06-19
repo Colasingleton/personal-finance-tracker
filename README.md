@@ -1,29 +1,60 @@
-<strong>**DO NOT DISTRIBUTE OR PUBLICLY POST SOLUTIONS TO THESE LABS. MAKE ALL FORKS OF THIS REPOSITORY WITH SOLUTION CODE PRIVATE. PLEASE REFER TO THE STUDENT CODE OF CONDUCT AND ETHICAL EXPECTATIONS FOR COLLEGE OF INFORMATION TECHNOLOGY STUDENTS FOR SPECIFICS. **</strong>
+    Personal Finance Expense Tracker
+A web-based expense tracking application with budgeting, analytics, and forecasting capabilities built with Spring Boot.
 
-# WESTERN GOVERNORS UNIVERSITY 
-## D424 – SOFTWARE ENGINEERING CAPSTONE
-Welcome to Software Engineering Capstone! This is an opportunity for students to develop full stack software engineering documentation and applications. They will execute documentation, unit testing, revision of software applications, and deploy software applications with scripts and containers on a cloud platform.
+    Version Information
+•	Application Version: 1.0.0
+•	Java Version: 17+
+•	Spring Boot: 3.5.0
+•	MySQL: 8.0+
+•	Maven: 3.6+
 
-FOR SPECIFIC TASK INSTRUCTIONS AND REQUIREMENTS FOR THIS ASSESSMENT, PLEASE REFER TO THE COURSE PAGE.
-BASIC INSTRUCTIONS
-For this assessment, you will deploy your developed full stack software product to a web service of your choice.
+    Technology Stack
+    Backend
+•	Spring Boot 3.5.0
+•	Spring Data JPA
+•	Spring Security
+•	MySQL Database
+•	Maven Build Tool
+    
+    Frontend
+•	Thymeleaf Template Engine
+•	Bootstrap 5.3.2
+•	Chart.js for Data Visualization
+•	Font Awesome Icons
+    
+    Testing
+•	JUnit 5
+•	Mockito for Unit Testing
 
+    Key Features
+•	Expense Management: Add, edit, delete, and search expenses
+•	Budget Tracking: Set monthly budgets by category
+•	Analytics Dashboard: Visual spending trends and category breakdowns
+•	Forecasting: Predictive spending analysis using moving averages
+•	Report Generation: Downloadable expense reports with date ranges
+•	User Authentication: Secure login and user data isolation
+•	Responsive Design: Mobile-friendly interface
 
-## SUPPLEMENTAL RESOURCES  
-1.	How to clone a project to IntelliJ using Git?
+    Database Schema
+•	Users: User accounts and authentication
+•	Categories: Expense categories (Food, Transportation, etc.)
+•	Expenses: Individual expense records
+•	Budgets: Monthly budget allocations
+•	Forecasts: Predictive spending data
 
-> Ensure that you have Git installed on your system and that IntelliJ is installed using [Toolbox](https://www.jetbrains.com/toolbox-app/). Make sure that you are using version 2022.3.2. Once this has been confirmed, click the clone button and use the 'IntelliJ IDEA (HTTPS)' button. This will open IntelliJ with a prompt to clone the proejct. Save it in a safe location for the directory and press clone. IntelliJ will prompt you for your credentials. Enter in your WGU Credentials and the project will be cloned onto your local machine.  
+    Quick Start
+    Prerequisites
+•	Java 17 or higher
+•	MySQL 8.0 or higher
+•	Maven 3.6+
 
-2. How to create a branch and start Development?
+    Core Dependencies
+•	spring-boot-starter-web
+•	spring-boot-starter-data-jpa
+•	spring-boot-starter-security
+•	spring-boot-starter-thymeleaf
+•	mysql-connector-j
+•	spring-boot-starter-validation
 
-- GitLab method
-> Press the '+' button located near your branch name. In the dropdown list, press the 'New branch' button. This will allow you to create a name for your branch. Once the branch has been named, you can select 'Create Branch' to push the branch to your repository.
-
-- IntelliJ method
-> In IntelliJ, Go to the 'Git' button on the top toolbar. Select the new branch option and create a name for the branch. Make sure checkout branch is selected and press create. You can now add a commit message and push the new branch to the local repo.
-
-## SUPPORT
-If you need additional support, please navigate to the course page and reach out to your course instructor.
-
-## FUTURE USE
-Take this opportunity to create or add to a simple resume portfolio to highlight and showcase your work for future use in career search, experience, and education!
+    Author
+    Cola Singleton
