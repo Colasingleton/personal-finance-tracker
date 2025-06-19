@@ -29,9 +29,6 @@ public class BudgetController {
 
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private BudgetService budgetService;
 
     @Autowired
