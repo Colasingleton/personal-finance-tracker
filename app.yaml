@@ -10,3 +10,11 @@ env_variables:
 automatic_scaling:
   min_instances: 0
   max_instances: 2
+
+readiness_check:
+  timeout_sec: 300
+  checkout_interval_sec: 5
+
+liveness_check:
+  timeout_sec: 300
+  checkout_interval_sec: 30
