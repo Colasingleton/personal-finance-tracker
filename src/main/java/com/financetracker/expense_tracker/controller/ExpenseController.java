@@ -41,16 +41,16 @@ public class ExpenseController {
     private UserService userService;
 
 
-    @GetMapping("/analytics-test")
-    public String testAnalytics(Model model, Authentication authentication) {
-        User user = userService.findByUsername(authentication.getName()).orElse(null);
-        if (user == null) return "redirect:/login";
-        ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(user.getId());
-        model.addAttribute("summary", summary);
-        model.addAttribute("categoryBreakdown", summary.getCategoryBreakdown());
-        model.addAttribute("budgetComparisons", summary.getBudgetComparisons());
-        return "analytics-test";
-    }
+ //   @GetMapping("/analytics-test")
+ //   public String testAnalytics(Model model, Authentication authentication) {
+ //       User user = userService.findByUsername(authentication.getName()).orElse(null);
+ //       if (user == null) return "redirect:/login";
+ //       ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(user.getId());
+ //       model.addAttribute("summary", summary);
+ //       model.addAttribute("categoryBreakdown", summary.getCategoryBreakdown());
+//        model.addAttribute("budgetComparisons", summary.getBudgetComparisons());
+ //       return "analytics-test";
+ //   }
 
     @GetMapping
     public String listExpenses(Model model,
