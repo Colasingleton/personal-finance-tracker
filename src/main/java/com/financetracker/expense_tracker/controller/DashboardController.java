@@ -16,28 +16,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-//test
 
-@Controller
-public class DashboardController {
-
-    @Autowired
-    private UserService userService;
-
-    @GetMapping("/dashboard")
-    public String dashboard(Model model, Authentication authentication) {
-        User user = userService.findByUsername(authentication.getName()).orElse(null);
-        if (user == null) return "redirect:/login";
-
-        // Keep it simple - no analytics for now
-        model.addAttribute("message", "Welcome to your Expense Tracker!");
-        model.addAttribute("summary", null); // This will make the template show welcome screen
-        return "dashboard";
-    }
-}
-//test
-
-/*
 @Controller
 public class DashboardController {
     @Autowired
@@ -118,4 +97,3 @@ public class DashboardController {
 
 
 }
-        */
