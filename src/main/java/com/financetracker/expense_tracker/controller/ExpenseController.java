@@ -5,6 +5,7 @@ import com.financetracker.expense_tracker.entity.Expense;
 import com.financetracker.expense_tracker.entity.User;
 import com.financetracker.expense_tracker.repository.UserRepository;
 import com.financetracker.expense_tracker.service.CategoryService;
+import com.financetracker.expense_tracker.service.ExpenseAnalyticsService;
 import com.financetracker.expense_tracker.service.ExpenseService;
 import com.financetracker.expense_tracker.service.UserService;
 import jakarta.validation.Valid;
@@ -32,8 +33,24 @@ public class ExpenseController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private ExpenseAnalyticsService analyticsService;
+
     @Autowired
     private UserService userService;
+
+
+    @GetMapping("/analytics-test")
+    public String testAnalytics(Model model, Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName()).orElse(null);
+        if (user == null) return "redirect:/login";
+        ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(user.getId());
+        model.addAttribute("summary", summary);
+        model.addAttribute("categoryBreakdown", summary.getCategoryBreakdown());
+        model.addAttribute("budgetComparisons", summary.getBudgetComparisons());
+        return "analytics-test";
+    }
 
     @GetMapping
     public String listExpenses(Model model,

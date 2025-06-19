@@ -30,7 +30,7 @@
         </div>
         <div class="card-body">
           <div th:each="category : ${categoryBreakdown}">
-            <p><span th:text="${category.name}"></span>: $<span th:text="${#numbers.formatDecimal(category.totalAmount, 1, 2)}"></span></p>
+            <p><span th:text="${category.categoryName}"></span>: $<span th:text="${#numbers.formatDecimal(category.totalAmount, 1, 2)}"></span></p>
 
           </div>
         </div>
