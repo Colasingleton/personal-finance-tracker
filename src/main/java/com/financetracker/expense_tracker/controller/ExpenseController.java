@@ -35,14 +35,11 @@ public class ExpenseController {
     @Autowired
     private CategoryService categoryService;
 
-    @Autowired
-    @Lazy
-    private ExpenseAnalyticsService analyticsService;
 
     @Autowired
     private UserService userService;
 
-
+/*
     @GetMapping("/analytics-test")
     public String testAnalytics(Model model, Authentication authentication) {
         User user = userService.findByUsername(authentication.getName()).orElse(null);
@@ -53,6 +50,7 @@ public class ExpenseController {
         model.addAttribute("budgetComparisons", summary.getBudgetComparisons());
         return "analytics-test";
     }
+    */
 
     @GetMapping
     public String listExpenses(Model model,
