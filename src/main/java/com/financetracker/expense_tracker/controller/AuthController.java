@@ -135,8 +135,8 @@ public class AuthController {
             return "dashboard";
     }
 
-    @GetMapping("/")
-    public String home() {
-        return "redirect:/dashboard";
-    }
+//    @GetMapping("/")
+ //   public String home() {
+ //       return "redirect:/dashboard";
+ //   }
 }
