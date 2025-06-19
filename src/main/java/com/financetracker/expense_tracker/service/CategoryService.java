@@ -2,6 +2,7 @@ package com.financetracker.expense_tracker.service;
 
 import com.financetracker.expense_tracker.entity.Category;
 import com.financetracker.expense_tracker.repository.CategoryRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,13 @@ public class CategoryService {
             categoryRepository.save(new Category("Other", "#6C5CE7", "fa-question"));
         }
     }
+
+
+    @PostConstruct
+    public void init() {
+        initializeDefaultCategories();
+    }
+
 //debugging
 public void debugCategories() {
     List<Category> categories = categoryRepository.findAll();
