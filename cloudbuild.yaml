@@ -1,14 +1,9 @@
 steps:
-  # Build and deploy to Cloud Run
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: [
-      'builds', 'submit', 
-      '--tag', 'gcr.io/$PROJECT_ID/expense-tracker'
-    ]
+  # Deploy directly to Cloud Run from source
   - name: 'gcr.io/cloud-builders/gcloud'
     args: [
       'run', 'deploy', 'expense-tracker',
-      '--image', 'gcr.io/$PROJECT_ID/expense-tracker',
+      '--source', '.',
       '--region', 'us-east1',
       '--allow-unauthenticated',
       '--memory', '1Gi',
