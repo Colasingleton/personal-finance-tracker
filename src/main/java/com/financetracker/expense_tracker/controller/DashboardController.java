@@ -42,6 +42,9 @@ public class DashboardController {
 
 
         try{
+            System.out.println("=== DASHBOARD DEBUG START ===");
+            System.out.println("User ID: " + userId);
+
             ExpenseAnalyticsService.DashboardSummary summary = analyticsService.getCurrentMonthSummary(userId);
             List<Forecast> forecasts = forecastingService.generateForecastsForAllCategories(userId);
 
@@ -60,7 +63,7 @@ public class DashboardController {
             }
             //debugging
 
-            model.addAttribute("spendingTrends", spendingTrends);
+
 
 
             BigDecimal totalPredicted = forecasts.stream()
@@ -76,6 +79,8 @@ public class DashboardController {
             model.addAttribute("forecast", forecasts);
             model.addAttribute("currentMonth", currentMonthName);
             model.addAttribute("currentYear", now.getYear());
+            model.addAttribute("spendingTrends", spendingTrends);
+
 
             double budgetPercentageUsed = summary.getBudgetUsedPercentage();
             model.addAttribute("budgetPercentageUsed", budgetPercentageUsed);

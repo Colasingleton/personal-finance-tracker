@@ -7,6 +7,7 @@ import com.financetracker.expense_tracker.entity.User;
 import com.financetracker.expense_tracker.repository.ForecastRepository;
 import com.financetracker.expense_tracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,9 +22,11 @@ import java.util.Optional;
 public class ForecastingService {
 
     @Autowired
+    @Lazy
     private ForecastRepository forecastRepository;
 
     @Autowired
+    @Lazy
     private ExpenseAnalyticsService analyticsService;
 
     @Autowired

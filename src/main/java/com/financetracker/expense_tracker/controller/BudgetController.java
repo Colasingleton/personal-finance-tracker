@@ -36,6 +36,8 @@ public class BudgetController {
 
     @Autowired
     private UserService userService;
+
+
 /*
     @GetMapping("/analytics-test")
     public String testAnalytics(Model model, Authentication authentication) {
@@ -76,6 +78,7 @@ public class BudgetController {
         }
     }
 */
+
 
 
     @GetMapping
