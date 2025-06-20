@@ -1,0 +1,11 @@
+steps:
+  # Deploy directly to Cloud Run from source
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run', 'deploy', 'expense-tracker',
+      '--source', '.',
+      '--region', 'us-east1',
+      '--allow-unauthenticated',
+      '--memory', '1Gi',
+      '--timeout', '900'
+    ]
